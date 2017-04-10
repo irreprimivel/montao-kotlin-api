@@ -1,4 +1,4 @@
-group 'org.unstoppable'
+group 'org.irreprimivel'
 version '1.0-SNAPSHOT'
 
 buildscript {
