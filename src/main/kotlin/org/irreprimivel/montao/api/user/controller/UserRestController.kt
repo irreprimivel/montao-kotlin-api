@@ -63,9 +63,9 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
             .ok(userService.getByUsername(username))
 
     @GetMapping(value = "/{username}/communities/", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
-    fun getUserCommunities(@PathVariable username: String,
-                           page: Int,
-                           limit: Int): ResponseEntity<List<Community>> {
+    fun getCommunitiesByUser(@PathVariable username: String,
+                             page: Int,
+                             limit: Int): ResponseEntity<List<Community>> {
 
         return ResponseEntity.ok(subscriptionDAO.getByUser(userService.getByUsername(username), page, limit))
     }
