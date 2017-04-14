@@ -1,12 +1,11 @@
 package org.irreprimivel.montao.api.user.service
 
-import org.irreprimivel.montao.api.subscription.SubscriptionDAO
 import org.irreprimivel.montao.api.user.User
 import org.springframework.stereotype.Service
 import org.irreprimivel.montao.api.user.dao.UserDAO
 
 @Service
-class UserServiceImpl(val userDAO: UserDAO, val subscriptionDAO: SubscriptionDAO) : UserService {
+class UserServiceImpl(val userDAO: UserDAO) : UserService {
     override fun add(user: User) = userDAO.add(user)
 
     override fun getAll(page: Int, limit: Int): List<User> = userDAO.getAll(page, limit)

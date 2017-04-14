@@ -24,24 +24,21 @@ import org.springframework.web.util.UriComponentsBuilder
 @RestController
 @RequestMapping(value = "/communities")
 class CommunityRestController(val communityService: CommunityService, val subscriptionService: SubscriptionService) {
-    @PostMapping(
-            consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-            produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @PostMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
+                 produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun add(@RequestBody community: Community, uriComponentsBuilder: UriComponentsBuilder): ResponseEntity<Community> {
         communityService.add(community)
         val location = uriComponentsBuilder.path("/communities/{title}").buildAndExpand(community.title).toUri()
         return ResponseEntity.created(location).build()
     }
 
-    @PutMapping(
-            consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-            produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @PutMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
+                produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun update(@RequestBody community: Community): ResponseEntity<Community> = ResponseEntity
             .ok(communityService.update(community))
 
-    @DeleteMapping(
-            consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-            produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @DeleteMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
+                   produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun delete(@RequestBody community: Community): ResponseEntity<Community> {
         communityService.delete(community)
         return ResponseEntity.ok(community)
@@ -63,8 +60,12 @@ class CommunityRestController(val communityService: CommunityService, val subscr
             .ok(communityService.getByTitle(title))
 
     @GetMapping(value = "/{title}/users", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
-    fun getUsersByCommunity(@PathVariable title: String, page: Int = 1, limit: Int = 30): ResponseEntity<List<User>> =
-            ResponseEntity.ok(subscriptionService.getByCommunity(communityService.getByTitle(title), page, limit))
+    fun getUsersByCommunity(@PathVariable title: String,
+                            page: Int = 1,
+                            limit: Int = 30): ResponseEntity<List<User>> = ResponseEntity.ok(subscriptionService.getByCommunity(
+            communityService.getByTitle(title),
+            page,
+            limit))
 
     @GetMapping(value = "/{title}/channels", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun getChannelsByCommunity(@PathVariable title: String): ResponseEntity<List<Channel>> {

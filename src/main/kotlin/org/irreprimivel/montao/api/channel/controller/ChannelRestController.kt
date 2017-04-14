@@ -28,15 +28,12 @@ class ChannelRestController(val channelService: ChannelService) {
         return ResponseEntity.created(location).build()
     }
 
-    @PutMapping(
-            consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-            produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
-    fun update(@RequestBody channel: Channel): ResponseEntity<Channel> = ResponseEntity
-            .ok(channelService.update(channel))
+    @PutMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
+                produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    fun update(@RequestBody channel: Channel): ResponseEntity<Channel> = ResponseEntity.ok(channelService.update(channel))
 
-    @DeleteMapping(
-            consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-            produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @DeleteMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
+                   produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun delete(@RequestBody channel: Channel): ResponseEntity<Channel> {
         channelService.delete(channel)
         return ResponseEntity.ok(channel)
@@ -54,8 +51,6 @@ class ChannelRestController(val channelService: ChannelService) {
     }
 
     @GetMapping(value = "/{title}", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
-    fun getByTitle(@PathVariable title: String): ResponseEntity<Channel> = ResponseEntity
-            .ok(channelService.getByTitle(title))
-
-
+    fun getByTitle(@PathVariable title: String): ResponseEntity<Channel> = ResponseEntity.ok(channelService.getByTitle(
+            title))
 }

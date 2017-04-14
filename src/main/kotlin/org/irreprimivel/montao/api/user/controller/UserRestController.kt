@@ -32,16 +32,12 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
         return ResponseEntity.created(location).build()
     }
 
-    @PutMapping(
-            consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-            produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
-    fun update(@RequestBody user: User): ResponseEntity<User> {
-        return ResponseEntity.ok(userService.update(user))
-    }
+    @PutMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
+                produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    fun update(@RequestBody user: User): ResponseEntity<User> = ResponseEntity.ok(userService.update(user))
 
-    @DeleteMapping(
-            consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-            produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @DeleteMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
+                   produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun delete(@RequestBody user: User): ResponseEntity<User> {
         userService.delete(user)
         return ResponseEntity.ok(user)
@@ -59,16 +55,16 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
     }
 
     @GetMapping(value = "/{username}", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
-    fun getByUsername(@PathVariable username: String): ResponseEntity<User> = ResponseEntity
-            .ok(userService.getByUsername(username))
+    fun getByUsername(@PathVariable username: String): ResponseEntity<User> = ResponseEntity.ok(userService.getByUsername(
+            username))
 
     @GetMapping(value = "/{username}/communities/", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
     fun getCommunitiesByUser(@PathVariable username: String,
                              page: Int,
-                             limit: Int): ResponseEntity<List<Community>> {
-
-        return ResponseEntity.ok(subscriptionDAO.getByUser(userService.getByUsername(username), page, limit))
-    }
+                             limit: Int): ResponseEntity<List<Community>> = ResponseEntity.ok(subscriptionDAO.getByUser(
+            userService.getByUsername(username),
+            page,
+            limit))
 
     /**
      * Проверяем существование такого юзернэйма.
@@ -77,9 +73,8 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
      * @return  Статус 200 - если есть, 404 - если нет.
      */
     @RequestMapping(method = arrayOf(RequestMethod.HEAD))
-    fun checkUsername(@RequestParam username: String): ResponseEntity<*> = ResponseEntity
-            .ok(userService.getByUsername(username))
-
+    fun checkUsername(@RequestParam username: String): ResponseEntity<*> = ResponseEntity.ok(userService.getByUsername(
+            username))
 
     /**
      * Проверяет вуществование такой почты
