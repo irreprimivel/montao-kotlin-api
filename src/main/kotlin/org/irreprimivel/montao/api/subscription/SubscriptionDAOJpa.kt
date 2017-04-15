@@ -2,9 +2,12 @@ package org.irreprimivel.montao.api.subscription
 
 import org.irreprimivel.montao.api.community.entity.Community
 import org.irreprimivel.montao.api.user.User
+import org.springframework.stereotype.Repository
 import javax.persistence.EntityManager
+import javax.persistence.PersistenceContext
 
-class SubscriptionDAOJpa(val entityManager: EntityManager) : SubscriptionDAO {
+@Repository
+class SubscriptionDAOJpa(@PersistenceContext val entityManager: EntityManager) : SubscriptionDAO {
     override fun add(subscription: Subscription) = entityManager.persist(subscription)
 
     override fun delete(subscription: Subscription) = entityManager.remove(subscription)
@@ -22,4 +25,14 @@ class SubscriptionDAOJpa(val entityManager: EntityManager) : SubscriptionDAO {
             .setFirstResult((page - 1) * limit)
             .setMaxResults(limit)
             .resultList
+
+    override fun communitiesCountByUser(user: User): Long = entityManager
+            .createQuery("select count(id) from Subscription where user = :user", Community::class.java)
+            .setParameter("user", user)
+            .singleResult as Long
+
+    override fun usersCountByCommunity(community: Community): Long = entityManager
+            .createQuery("select count(id) from Subscription where community = :community", User::class.java)
+            .setParameter("community", community)
+            .singleResult as Long
 }
