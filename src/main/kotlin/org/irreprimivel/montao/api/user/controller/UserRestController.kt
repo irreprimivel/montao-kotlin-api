@@ -5,7 +5,7 @@ import org.irreprimivel.montao.api.subscription.SubscriptionDAO
 import org.irreprimivel.montao.api.user.User
 import org.irreprimivel.montao.api.user.service.UserService
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
@@ -25,25 +25,23 @@ import org.springframework.web.util.UriComponentsBuilder
 @RestController
 @RequestMapping(value = "/users")
 class UserRestController(val userService: UserService, val subscriptionDAO: SubscriptionDAO) {
-    @PostMapping(produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @PostMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun add(@RequestBody user: User, uriComponentsBuilder: UriComponentsBuilder): ResponseEntity<User> {
         userService.add(user)
         val location = uriComponentsBuilder.path("/users/{username}").buildAndExpand(user.username).toUri()
         return ResponseEntity.created(location).build()
     }
 
-    @PutMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-                produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @PutMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun update(@RequestBody user: User): ResponseEntity<User> = ResponseEntity.ok(userService.update(user))
 
-    @DeleteMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-                   produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @DeleteMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun delete(@RequestBody user: User): ResponseEntity<User> {
         userService.delete(user)
         return ResponseEntity.ok(user)
     }
 
-    @GetMapping(produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun getAll(page: Int = 1, limit: Int = 30): ResponseEntity<List<User>> {
         val headers = HttpHeaders()
         with(headers) {
@@ -54,11 +52,11 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
         return ResponseEntity.ok().headers(headers).body(userService.getAll(page, limit))
     }
 
-    @GetMapping(value = "/{username}", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @GetMapping(value = "/{username}", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun getByUsername(@PathVariable username: String): ResponseEntity<User> = ResponseEntity.ok(userService.getByUsername(
             username))
 
-    @GetMapping(value = "/{username}/communities/", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @GetMapping(value = "/{username}/communities/", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun getCommunitiesByUser(@PathVariable username: String,
                              page: Int,
                              limit: Int): ResponseEntity<List<Community>> = ResponseEntity.ok(subscriptionDAO.getByUser(
@@ -72,9 +70,9 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
      * @param   username Юзернейм.
      * @return  Статус 200 - если есть, 404 - если нет.
      */
-    @RequestMapping(method = arrayOf(RequestMethod.HEAD))
-    fun checkUsername(@RequestParam username: String): ResponseEntity<*> = ResponseEntity.ok(userService.getByUsername(
-            username))
+    @RequestMapping(value = "/username", method = arrayOf(RequestMethod.HEAD))
+    fun checkUsername(@RequestParam username: String): ResponseEntity<*> = ResponseEntity
+            .ok(userService.getByUsername(username))
 
     /**
      * Проверяет вуществование такой почты
@@ -82,6 +80,6 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
      * @param   email Почта.
      * @return  Статус 200 - если есть, 404 - если нет.
      */
-    @RequestMapping(method = arrayOf(RequestMethod.HEAD))
+    @RequestMapping(value = "/email", method = arrayOf(RequestMethod.HEAD))
     fun checkEmail(@RequestParam email: String): ResponseEntity<*> = ResponseEntity.ok(userService.getByEmail(email))
 }
