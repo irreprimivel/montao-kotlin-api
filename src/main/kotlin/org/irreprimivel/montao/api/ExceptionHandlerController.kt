@@ -2,6 +2,7 @@ package org.irreprimivel.montao.api
 
 import org.irreprimivel.montao.api.channel.exception.ChannelNotFoundException
 import org.irreprimivel.montao.api.community.exception.CommunityNotFoundException
+import org.irreprimivel.montao.api.message.exception.MessageNotFoundException
 import org.irreprimivel.montao.api.model.Error
 import org.irreprimivel.montao.api.user.exception.UserNotFoundException
 import org.springframework.http.HttpStatus.*
@@ -22,4 +23,8 @@ class ExceptionHandlerController {
     @ExceptionHandler(UserNotFoundException::class)
     @ResponseStatus(NOT_FOUND)
     fun communityNotFound(e: UserNotFoundException): Error = Error(NOT_FOUND.value(), e.message!!)
+
+    @ExceptionHandler(MessageNotFoundException::class)
+    @ResponseStatus(NOT_FOUND)
+    fun communityNotFound(e: MessageNotFoundException): Error = Error(NOT_FOUND.value(), e.message!!)
 }
