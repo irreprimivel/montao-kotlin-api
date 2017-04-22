@@ -1,14 +1,17 @@
 package org.irreprimivel.montao.api.community.controller
 
 import org.irreprimivel.montao.api.channel.entity.Channel
+import org.irreprimivel.montao.api.channel.exception.ChannelNotFoundException
 import org.irreprimivel.montao.api.community.entity.Community
 import org.irreprimivel.montao.api.community.service.CommunityService
 import org.irreprimivel.montao.api.subscription.SubscriptionService
 import org.irreprimivel.montao.api.user.User
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestMethod.HEAD
 import org.springframework.web.util.UriComponentsBuilder
 
 /**
@@ -20,55 +23,65 @@ import org.springframework.web.util.UriComponentsBuilder
  * - GET    /communities/{title}
  * - GET    /communities/{title}/users
  * - GET    /communities/{title}/channels
+ * - HEAD   /communities/{title}/channels?channel={channel}
+ * - HEAD   /communities?title={title}
  */
 @RestController
 @RequestMapping(value = "/communities")
-class CommunityRestController(val communityService: CommunityService, val subscriptionService: SubscriptionService) {
-    @PostMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-                 produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+class CommunityRestController(@Autowired val communityService: CommunityService,
+                              val subscriptionService: SubscriptionService) {
+    @PostMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun add(@RequestBody community: Community, uriComponentsBuilder: UriComponentsBuilder): ResponseEntity<Community> {
         communityService.add(community)
         val location = uriComponentsBuilder.path("/communities/{title}").buildAndExpand(community.title).toUri()
         return ResponseEntity.created(location).build()
     }
 
-    @PutMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-                produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @PutMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun update(@RequestBody community: Community): ResponseEntity<Community> = ResponseEntity
             .ok(communityService.update(community))
 
-    @DeleteMapping(consumes = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE),
-                   produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
+    @DeleteMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun delete(@RequestBody community: Community): ResponseEntity<Community> {
         communityService.delete(community)
         return ResponseEntity.ok(community)
     }
 
-    @GetMapping(produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
-    fun getAll(page: Int = 1, limit: Int = 30): ResponseEntity<List<Community>> {
+    @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun findAll(@RequestParam page: Int = 1, @RequestParam limit: Int = 30): ResponseEntity<List<Community>> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", communityService.totalCount().toString())
             set("X-Pagination-Page", page.toString())
             set("X-Pagination-Limit", limit.toString())
         }
-        return ResponseEntity.ok(communityService.getAll(page, limit))
+        return ResponseEntity.ok().headers(headers).body(communityService.findAll(page, limit))
     }
 
-    @GetMapping(value = "/{title}", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
-    fun getByTitle(@PathVariable title: String): ResponseEntity<Community> = ResponseEntity
-            .ok(communityService.getByTitle(title))
+    @GetMapping(value = "/{title}", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun findByTitle(@PathVariable title: String): ResponseEntity<Community> = ResponseEntity
+            .ok(communityService.findByTitle(title))
 
-    @GetMapping(value = "/{title}/users", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
-    fun getUsersByCommunity(@PathVariable title: String,
-                            page: Int = 1,
-                            limit: Int = 30): ResponseEntity<List<User>> = ResponseEntity.ok(subscriptionService.getByCommunity(
-            communityService.getByTitle(title),
-            page,
-            limit))
+    @GetMapping(value = "/{title}/users", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun findUsersByCommunity(@PathVariable title: String,
+                             @RequestParam page: Int = 1,
+                             @RequestParam limit: Int = 30): ResponseEntity<List<User>> = ResponseEntity
+            .ok(subscriptionService.findByCommunity(communityService.findByTitle(title), page, limit))
 
-    @GetMapping(value = "/{title}/channels", produces = arrayOf(MediaType.APPLICATION_JSON_UTF8_VALUE))
-    fun getChannelsByCommunity(@PathVariable title: String): ResponseEntity<List<Channel>> {
+    @GetMapping(value = "/{title}/channels", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun findChannelsByCommunity(@PathVariable title: String): ResponseEntity<List<Channel>> = ResponseEntity
+            .ok(communityService.findByTitle(title).channels)
 
-    }
+    @RequestMapping(value = "/{title}/channels/", params = arrayOf("channel"), method = arrayOf(HEAD))
+    fun checkChannelTitle(@PathVariable title: String,
+                          @RequestParam channel: String): ResponseEntity<*> = ResponseEntity
+            .ok(communityService.findByTitle(title)
+                        .channels!!.stream()
+                        .filter { it.equals(channel) }
+                        .findFirst()
+                        .orElseThrow { ChannelNotFoundException("Channel not found") })
+
+    @RequestMapping(params = arrayOf("title"), method = arrayOf(HEAD))
+    fun checkTitle(@RequestParam title: String): ResponseEntity<*> = ResponseEntity
+            .ok(communityService.findByTitle(title))
 }

@@ -5,9 +5,10 @@ import org.irreprimivel.montao.api.subscription.SubscriptionDAO
 import org.irreprimivel.montao.api.user.User
 import org.irreprimivel.montao.api.user.service.UserService
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType.*
+import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestMethod.HEAD
 import org.springframework.web.util.UriComponentsBuilder
 
 /**
@@ -19,8 +20,8 @@ import org.springframework.web.util.UriComponentsBuilder
  * - GET    /users/                         - выдает всех пользователей
  * - GET    /users/{username}               - ищет пользователя с таким юзернэймом
  * - GET    /users/{username}/communities   - выдает все сообщества в которых состоит данный пользователь
- * - HEAD   /users/username?={username}     - проверяет существование такого имени пользователя
- * - HEAD   /users/email?={email}           - проверяет существование такой почты
+ * - HEAD   /users?username={username}      - проверяет существование такого имени пользователя
+ * - HEAD   /users?email={email}            - проверяет существование такой почты
  */
 @RestController
 @RequestMapping(value = "/users")
@@ -42,27 +43,25 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
     }
 
     @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun getAll(page: Int = 1, limit: Int = 30): ResponseEntity<List<User>> {
+    fun findAll(@RequestParam page: Int = 1, @RequestParam limit: Int = 30): ResponseEntity<List<User>> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", userService.totalCount().toString())
             set("X-Pagination-Page", page.toString())
             set("X-Pagination-Limit", limit.toString())
         }
-        return ResponseEntity.ok().headers(headers).body(userService.getAll(page, limit))
+        return ResponseEntity.ok().headers(headers).body(userService.findAll(page, limit))
     }
 
     @GetMapping(value = "/{username}", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun getByUsername(@PathVariable username: String): ResponseEntity<User> = ResponseEntity.ok(userService.getByUsername(
-            username))
+    fun findByUsername(@PathVariable username: String): ResponseEntity<User> = ResponseEntity
+            .ok(userService.findByUsername(username))
 
     @GetMapping(value = "/{username}/communities/", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun getCommunitiesByUser(@PathVariable username: String,
-                             page: Int,
-                             limit: Int): ResponseEntity<List<Community>> = ResponseEntity.ok(subscriptionDAO.getByUser(
-            userService.getByUsername(username),
-            page,
-            limit))
+    fun findCommunitiesByUser(@PathVariable username: String,
+                              @RequestParam page: Int,
+                              @RequestParam limit: Int): ResponseEntity<List<Community>> = ResponseEntity
+            .ok(subscriptionDAO.findByUser(userService.findByUsername(username), page, limit))
 
     /**
      * Проверяем существование такого юзернэйма.
@@ -70,16 +69,16 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
      * @param   username Юзернейм.
      * @return  Статус 200 - если есть, 404 - если нет.
      */
-    @RequestMapping(value = "/username", method = arrayOf(RequestMethod.HEAD))
+    @RequestMapping(params = arrayOf("username"), method = arrayOf(HEAD))
     fun checkUsername(@RequestParam username: String): ResponseEntity<*> = ResponseEntity
-            .ok(userService.getByUsername(username))
+            .ok(userService.findByUsername(username))
 
     /**
-     * Проверяет вуществование такой почты
+     * Проверяет существование такой почты
      *
      * @param   email Почта.
      * @return  Статус 200 - если есть, 404 - если нет.
      */
-    @RequestMapping(value = "/email", method = arrayOf(RequestMethod.HEAD))
-    fun checkEmail(@RequestParam email: String): ResponseEntity<*> = ResponseEntity.ok(userService.getByEmail(email))
+    @RequestMapping(params = arrayOf("email"), method = arrayOf(HEAD))
+    fun checkEmail(@RequestParam email: String): ResponseEntity<*> = ResponseEntity.ok(userService.findByEmail(email))
 }
