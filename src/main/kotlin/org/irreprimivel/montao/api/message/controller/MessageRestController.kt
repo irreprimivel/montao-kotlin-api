@@ -37,7 +37,7 @@ class MessageRestController(val messageService: MessageService) {
     }
 
     @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findAll(@RequestParam page: Int = 1, @RequestParam limit: Int = 30): ResponseEntity<List<Message>> {
+    fun findAll(@RequestParam page: Int, @RequestParam limit: Int): ResponseEntity<List<Message>> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", messageService.totalCount().toString())
