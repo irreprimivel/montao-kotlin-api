@@ -25,7 +25,7 @@ class JpaConfig(val environment: Environment) {
         val entityManagerFactory = LocalContainerEntityManagerFactoryBean()
         entityManagerFactory.dataSource = dataSource()
         entityManagerFactory.jpaVendorAdapter = jpaVendorAdapter()
-        entityManagerFactory.setPackagesToScan("org.irreprimivel.montao.api.entity")
+        entityManagerFactory.setPackagesToScan("org.irreprimivel.montao.api")
         entityManagerFactory.setJpaProperties(hibernateProperties())
         return entityManagerFactory
     }
@@ -64,10 +64,12 @@ class JpaConfig(val environment: Environment) {
      */
     private fun hibernateProperties(): Properties {
         val properties = Properties()
-        properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"))
-        properties.put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"))
-        properties.put("hibernate.format_sql", environment.getRequiredProperty("hibernate.format_sql"))
-        properties.put("hibernate.hbm2ddl.auto", environment.getRequiredProperty("hibernate.hbm2ddl.auto"))
+        with(properties) {
+            put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"))
+            put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"))
+            put("hibernate.format_sql", environment.getRequiredProperty("hibernate.format_sql"))
+            put("hibernate.hbm2ddl.auto", environment.getRequiredProperty("hibernate.hbm2ddl.auto"))
+        }
         return properties
     }
 }
