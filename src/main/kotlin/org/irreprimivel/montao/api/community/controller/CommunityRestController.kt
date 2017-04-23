@@ -1,18 +1,17 @@
 package org.irreprimivel.montao.api.community.controller
 
 import org.irreprimivel.montao.api.channel.entity.Channel
-import org.irreprimivel.montao.api.channel.exception.ChannelNotFoundException
 import org.irreprimivel.montao.api.community.entity.Community
 import org.irreprimivel.montao.api.community.service.CommunityService
 import org.irreprimivel.montao.api.subscription.SubscriptionService
 import org.irreprimivel.montao.api.user.User
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RequestMethod.HEAD
 import org.springframework.web.util.UriComponentsBuilder
+import java.util.NoSuchElementException
 
 /**
  * Роутинг:
@@ -28,8 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder
  */
 @RestController
 @RequestMapping(value = "/communities")
-class CommunityRestController(@Autowired val communityService: CommunityService,
-                              val subscriptionService: SubscriptionService) {
+class CommunityRestController(val communityService: CommunityService, val subscriptionService: SubscriptionService) {
     @PostMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun add(@RequestBody community: Community, uriComponentsBuilder: UriComponentsBuilder): ResponseEntity<Community> {
         communityService.add(community)
@@ -48,7 +46,7 @@ class CommunityRestController(@Autowired val communityService: CommunityService,
     }
 
     @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findAll(@RequestParam page: Int = 1, @RequestParam limit: Int = 30): ResponseEntity<List<Community>> {
+    fun findAll(@RequestParam page: Int, @RequestParam limit: Int): ResponseEntity<List<Community>> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", communityService.totalCount().toString())
@@ -64,8 +62,8 @@ class CommunityRestController(@Autowired val communityService: CommunityService,
 
     @GetMapping(value = "/{title}/users", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun findUsersByCommunity(@PathVariable title: String,
-                             @RequestParam page: Int = 1,
-                             @RequestParam limit: Int = 30): ResponseEntity<List<User>> = ResponseEntity
+                             @RequestParam page: Int,
+                             @RequestParam limit: Int): ResponseEntity<List<User>> = ResponseEntity
             .ok(subscriptionService.findByCommunity(communityService.findByTitle(title), page, limit))
 
     @GetMapping(value = "/{title}/channels", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
@@ -79,7 +77,7 @@ class CommunityRestController(@Autowired val communityService: CommunityService,
                         .channels!!.stream()
                         .filter { it.equals(channel) }
                         .findFirst()
-                        .orElseThrow { ChannelNotFoundException("Channel not found") })
+                        .orElseThrow { NoSuchElementException("Channel not found") })
 
     @RequestMapping(params = arrayOf("title"), method = arrayOf(HEAD))
     fun checkTitle(@RequestParam title: String): ResponseEntity<*> = ResponseEntity

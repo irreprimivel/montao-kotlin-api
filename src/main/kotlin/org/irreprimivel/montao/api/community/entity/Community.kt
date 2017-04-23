@@ -15,7 +15,7 @@ import javax.validation.constraints.Size
 data class Community(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
-        val id: BigInteger? = null,
+        val id: Long? = null,
 
         @Column(name = "title", nullable = false, unique = true)
         @NotEmpty

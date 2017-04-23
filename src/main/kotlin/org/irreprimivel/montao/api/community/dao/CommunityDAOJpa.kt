@@ -1,35 +1,34 @@
 package org.irreprimivel.montao.api.community.dao
 
 import org.irreprimivel.montao.api.community.entity.Community
-import org.irreprimivel.montao.api.community.exception.CommunityNotFoundException
 import org.springframework.stereotype.Repository
-import javax.persistence.EntityManager
-import javax.persistence.PersistenceContext
+import org.springframework.transaction.annotation.Transactional
+import java.util.NoSuchElementException
+import javax.persistence.EntityManagerFactory
 
 @Repository
-class CommunityDAOJpa(@PersistenceContext val entityManager: EntityManager) : CommunityDAO {
-    override fun add(community: Community) = entityManager.persist(community)
+@Transactional
+class CommunityDAOJpa(val entityManagerFactory: EntityManagerFactory) : CommunityDAO {
+    override fun add(community: Community) = entityManagerFactory.createEntityManager().persist(community)
 
-    override fun delete(community: Community) = entityManager.remove(community)
+    override fun delete(community: Community) = entityManagerFactory.createEntityManager().remove(community)
 
-    override fun update(community: Community): Community = entityManager.merge(community)
+    override fun update(community: Community): Community = entityManagerFactory.createEntityManager().merge(community)
 
-    override fun getAll(page: Int, limit: Int): List<Community> = entityManager
-            .createQuery("select Community from Community", Community::class.java)
+    override fun findAll(page: Int, limit: Int): List<Community> = entityManagerFactory.createEntityManager()
+            .createQuery("select c from Community c", Community::class.java)
             .setMaxResults(limit)
             .setFirstResult((page - 1) * limit)
             .resultList
 
-    override fun getByTitle(title: String): Community = entityManager
-            .createQuery("select Community from Community where title = :title", Community::class.java)
+    override fun findByTitle(title: String): Community = entityManagerFactory.createEntityManager()
+            .createQuery("select c from Community c where c.title = :title", Community::class.java)
             .setParameter("title", title)
             .resultList.stream()
             .findFirst()
-            .orElseThrow {
-                CommunityNotFoundException("Community with $title title not found")
-            }
+            .orElseThrow { NoSuchElementException("Community with $title title not found") }
 
-    override fun totalCount(): Long = entityManager.createQuery("select id from Community", Community::class.java)
-            .maxResults
-            .toLong()
+    override fun totalCount(): Long = entityManagerFactory.createEntityManager()
+            .createQuery("select count(c.id) from Community c")
+            .singleResult as Long
 }
