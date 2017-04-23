@@ -6,9 +6,11 @@ import org.irreprimivel.montao.api.channel.entity.Channel
 
 @Service
 class ChannelServiceImpl(val channelDAO: ChannelDAO) : ChannelService {
-    override fun getAll(page: Int, limit: Int): List<Channel> = channelDAO.getAll(page, limit)
+    override fun findById(id: Long): Channel = channelDAO.findById(id)
 
-    override fun getByTitle(title: String): Channel = channelDAO.getByTitle(title)
+    override fun findAll(page: Int, limit: Int): List<Channel> = channelDAO.findAll(page, limit)
+
+    override fun findByTitle(title: String): Channel = channelDAO.findByTitle(title)
 
     override fun add(channel: Channel) = channelDAO.add(channel)
 
