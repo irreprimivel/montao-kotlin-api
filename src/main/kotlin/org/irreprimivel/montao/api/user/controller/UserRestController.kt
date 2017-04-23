@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestMethod.GET
 import org.springframework.web.bind.annotation.RequestMethod.HEAD
 import org.springframework.web.util.UriComponentsBuilder
 
@@ -43,7 +44,7 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
     }
 
     @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findAll(@RequestParam page: Int = 1, @RequestParam limit: Int = 30): ResponseEntity<List<User>> {
+    fun findAll(@RequestParam page: Int, @RequestParam limit: Int): ResponseEntity<List<User>> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", userService.totalCount().toString())

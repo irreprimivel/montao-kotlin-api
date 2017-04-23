@@ -3,37 +3,39 @@ package org.irreprimivel.montao.api.user.dao
 import org.irreprimivel.montao.api.user.User
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import javax.persistence.EntityManager
-import javax.persistence.PersistenceContext
+import java.util.NoSuchElementException
+import javax.persistence.EntityManagerFactory
 
 @Repository
 @Transactional
-class UserDAOJpa(@PersistenceContext val entityManager: EntityManager) : UserDAO {
-    override fun getAll(page: Int, limit: Int): List<User> = entityManager
-            .createQuery("select User from User", User::class.java)
+class UserDAOJpa(val entityManagerFactory: EntityManagerFactory) : UserDAO {
+    override fun add(user: User) = entityManagerFactory.createEntityManager().persist(user)
+
+    override fun delete(user: User) = entityManagerFactory.createEntityManager().remove(user)
+
+    override fun update(user: User): User = entityManagerFactory.createEntityManager().merge(user)
+
+    override fun findAll(page: Int, limit: Int): List<User> = entityManagerFactory.createEntityManager()
+            .createQuery("select u from User u", User::class.java)
             .setMaxResults(limit)
             .setFirstResult((page - 1) * limit)
             .resultList
 
-    override fun getByUsername(username: String): User = entityManager
-            .createQuery("select User from User where username = :username", User::class.java)
+    override fun findByUsername(username: String): User = entityManagerFactory.createEntityManager()
+            .createQuery("select u from User u where u.username = :username", User::class.java)
             .setParameter("username", username)
-            .resultList
-            .first()
+            .resultList.stream()
+            .findFirst()
+            .orElseThrow { NoSuchElementException("User with $username username not found") }
 
-    override fun add(user: User) = entityManager.persist(user)
-
-    override fun delete(user: User) = entityManager.remove(user)
-
-    override fun update(user: User): User = entityManager.merge(user)
-
-    override fun totalCount(): Long = entityManager
-            .createQuery("select count(id) from User", User::class.java)
-            .singleResult as Long
-
-    override fun getByEmail(email: String): User = entityManager
-            .createQuery("select User from User where email = :email", User::class.java)
+    override fun findByEmail(email: String): User = entityManagerFactory.createEntityManager()
+            .createQuery("select u from User u where u.email = :email", User::class.java)
             .setParameter("email", email)
-            .resultList
-            .first()
+            .resultList.stream()
+            .findFirst()
+            .orElseThrow { NoSuchElementException("User with $email email not found") }
+
+    override fun totalCount(): Long = entityManagerFactory.createEntityManager()
+            .createQuery("select count(u.id) from User u")
+            .singleResult as Long
 }
