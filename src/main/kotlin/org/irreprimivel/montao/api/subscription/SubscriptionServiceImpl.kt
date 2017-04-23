@@ -10,9 +10,9 @@ class SubscriptionServiceImpl(val subscriptionDAO: SubscriptionDAO) : Subscripti
 
     override fun delete(subscription: Subscription) = subscriptionDAO.delete(subscription)
 
-    override fun getByUser(user: User, page: Int, limit: Int): List<Community> = subscriptionDAO
-            .getByUser(user, page, limit)
+    override fun findByUser(user: User, page: Int, limit: Int): List<Community> = subscriptionDAO
+            .findByUser(user, page, limit)
 
-    override fun getByCommunity(community: Community, page: Int, limit: Int): List<User> = subscriptionDAO
-            .getByCommunity(community, page, limit)
+    override fun findByCommunity(community: Community, page: Int, limit: Int): List<User> = subscriptionDAO
+            .findByCommunity(community, page, limit)
 }
