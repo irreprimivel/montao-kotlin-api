@@ -1,6 +1,5 @@
 package org.irreprimivel.montao.api.message.dao
 
-import org.irreprimivel.montao.api.channel.entity.Channel
 import org.irreprimivel.montao.api.message.entity.Message
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -22,9 +21,16 @@ class MessageDAOJpa(val entityManagerFactory: EntityManagerFactory) : MessageDAO
             .setMaxResults(limit)
             .resultList
 
-    override fun findAllByChannel(channel: Channel, page: Int, limit: Int): List<Message> = entityManagerFactory.createEntityManager()
-            .createQuery("select m from Message m where m.channel = :channel", Message::class.java)
-            .setParameter("channel", channel)
+    override fun findAllByChannelId(channelId: Long, page: Int, limit: Int): List<Message> = entityManagerFactory.createEntityManager()
+            .createQuery("select m from Message m where m.channel.id = :channelId", Message::class.java)
+            .setParameter("channelId", channelId)
+            .setFirstResult((page - 1) * limit)
+            .setMaxResults(limit)
+            .resultList
+
+    override fun findAllByUsername(username: String, page: Int, limit: Int): List<Message> = entityManagerFactory.createEntityManager()
+            .createQuery("select m from Message m where m.user.username = :username", Message::class.java)
+            .setParameter("username", username)
             .setFirstResult((page - 1) * limit)
             .setMaxResults(limit)
             .resultList
@@ -40,8 +46,13 @@ class MessageDAOJpa(val entityManagerFactory: EntityManagerFactory) : MessageDAO
             .createQuery("select count(m.id) from Message m")
             .singleResult as Long
 
-    override fun countByChannel(title: String): Long = entityManagerFactory.createEntityManager()
-            .createQuery("select count(m.id) from Message m where m.channel.title = :title")
-            .setParameter("title", title)
+    override fun countByChannelId(channelId: Long): Long = entityManagerFactory.createEntityManager()
+            .createQuery("select count(m.id) from Message m where m.channel.id = :channelId")
+            .setParameter("channelId", channelId)
+            .singleResult as Long
+
+    override fun countByUsername(username: String): Long = entityManagerFactory.createEntityManager()
+            .createQuery("select count(m.id) from Message m where m.user.username = :username")
+            .setParameter("username", username)
             .singleResult as Long
 }
