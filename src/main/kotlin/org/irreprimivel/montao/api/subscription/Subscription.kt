@@ -1,5 +1,6 @@
 package org.irreprimivel.montao.api.subscription
 
+import com.fasterxml.jackson.annotation.JsonFilter
 import org.irreprimivel.montao.api.community.entity.Community
 import org.irreprimivel.montao.api.user.User
 import javax.persistence.*
@@ -7,6 +8,7 @@ import javax.validation.constraints.NotNull
 
 @Entity
 @Table(name = "subscriptions")
+@JsonFilter("subscription")
 data class Subscription(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)

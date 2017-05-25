@@ -1,5 +1,6 @@
 package org.irreprimivel.montao.api.user
 
+import com.fasterxml.jackson.annotation.JsonFilter
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalDate
 import javax.persistence.*
@@ -7,6 +8,7 @@ import javax.validation.constraints.NotNull
 
 @Entity
 @Table(name = "users")
+@JsonFilter("user")
 data class User(@Id
                 @GeneratedValue(strategy = GenerationType.AUTO)
                 val id: Long,

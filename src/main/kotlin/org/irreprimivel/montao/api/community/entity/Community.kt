@@ -1,10 +1,10 @@
 package org.irreprimivel.montao.api.community.entity
 
+import com.fasterxml.jackson.annotation.JsonFilter
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import org.hibernate.validator.constraints.NotEmpty
 import org.irreprimivel.montao.api.channel.entity.Channel
 import org.irreprimivel.montao.api.user.User
-import java.math.BigInteger
 import java.time.LocalDate
 import javax.persistence.*
 import javax.validation.constraints.NotNull
@@ -12,6 +12,7 @@ import javax.validation.constraints.Size
 
 @Entity
 @Table(name = "communities")
+@JsonFilter("community")
 data class Community(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,8 +35,8 @@ data class Community(
 
         @Column(name = "is_visible", nullable = false)
         @NotNull
-        val isVisible: Boolean? = null,
+        val isVisible: Boolean? = null
 
-        @JsonManagedReference
+       /* @JsonManagedReference
         @OneToMany(mappedBy = "community", fetch = FetchType.EAGER)
-        val channels: List<Channel>? = null)
+        val channels: List<Channel>? = null*/)
