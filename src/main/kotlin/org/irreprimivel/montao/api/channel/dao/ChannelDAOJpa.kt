@@ -21,12 +21,13 @@ class ChannelDAOJpa(val entityManagerFactory: EntityManagerFactory) : ChannelDAO
             .setFirstResult((page - 1) * limit)
             .resultList
 
-    override fun findByTitle(title: String): Channel = entityManagerFactory.createEntityManager()
-            .createQuery("select c from Channel c where c.title = :title", Channel::class.java)
-            .setParameter("title", title)
-            .resultList.stream()
-            .findFirst()
-            .orElseThrow { NoSuchElementException("Channel with $title title not found") }
+    override fun findByCommunity(communityTitle: String, page: Int, limit: Int): List<Channel> = entityManagerFactory
+            .createEntityManager()
+            .createQuery("select c from Channel c where c.community.title = :title", Channel::class.java)
+            .setParameter("title", communityTitle)
+            .setMaxResults(limit)
+            .setFirstResult((page - 1) * limit)
+            .resultList
 
     override fun findById(id: Long): Channel = entityManagerFactory.createEntityManager()
             .createQuery("select c from Channel c where c.id = :id", Channel::class.java)
@@ -37,5 +38,10 @@ class ChannelDAOJpa(val entityManagerFactory: EntityManagerFactory) : ChannelDAO
 
     override fun totalCount(): Long = entityManagerFactory.createEntityManager()
             .createQuery("select count(c.id) from Channel c")
+            .singleResult as Long
+
+    override fun countByCommunity(communityTitle: String): Long = entityManagerFactory.createEntityManager()
+            .createQuery("select count(c.id) from Channel c where c.community.title = :title")
+            .setParameter("title", communityTitle)
             .singleResult as Long
 }

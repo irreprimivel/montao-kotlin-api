@@ -7,7 +7,8 @@ interface ChannelDAO {
     fun delete(channel: Channel)
     fun update(channel: Channel): Channel
     fun findAll(page: Int, limit: Int): List<Channel>
-    fun findByTitle(title: String): Channel
+    fun findByCommunity(communityTitle: String, page: Int, limit: Int): List<Channel>
     fun findById(id: Long): Channel
     fun totalCount(): Long
+    fun countByCommunity(communityTitle: String): Long
 }
