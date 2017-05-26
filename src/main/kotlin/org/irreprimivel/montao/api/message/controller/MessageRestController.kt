@@ -2,8 +2,9 @@ package org.irreprimivel.montao.api.message.controller
 
 import org.irreprimivel.montao.api.message.entity.Message
 import org.irreprimivel.montao.api.message.service.MessageService
+import org.irreprimivel.montao.api.util.JsonUtil
 import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType.*
+import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
@@ -38,40 +39,55 @@ class MessageRestController(val messageService: MessageService) {
         return ResponseEntity.ok(message)
     }
 
-    @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findAll(@RequestParam page: Int, @RequestParam limit: Int): ResponseEntity<List<Message>> {
+    @GetMapping(params = arrayOf("page", "limit", "fields"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun findAll(@RequestParam(required = false, defaultValue = "1") page: Int,
+                @RequestParam(required = false, defaultValue = "30") limit: Int,
+                @RequestParam(required = false) fields: Array<out String>): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", messageService.totalCount().toString())
             set("X-Pagination-Page", page.toString())
             set("X-Pagination-Limit", limit.toString())
         }
-        return ResponseEntity.ok().headers(headers).body(messageService.findAll(page, limit))
+        val messages = messageService.findAll(page, limit)
+        return ResponseEntity.ok().headers(headers).body(JsonUtil.objectToJsonString(fields, "message", messages))
     }
 
-    @GetMapping(value = "/{uuid}", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findByUuid(@PathVariable uuid: String): ResponseEntity<Message> = ResponseEntity
-            .ok(messageService.findByUuid(uuid))
+    @GetMapping(value = "/{uuid}", params = arrayOf("fields"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun findByUuid(@PathVariable uuid: String,
+                   @RequestParam(required = false) fields: Array<out String>): ResponseEntity<String> {
 
-    @GetMapping(params = arrayOf("username"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findAllByUsername(@RequestParam username: String, page: Int, limit: Int): ResponseEntity<List<Message>> {
+        val message = messageService.findByUuid(uuid)
+        return ResponseEntity.ok(JsonUtil.objectToJsonString(fields, "message", message))
+                   }
+
+    @GetMapping(params = arrayOf("username", "page", "limit", "fields"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun findAllByUsername(@RequestParam username: String,
+                          @RequestParam(required = false, defaultValue = "1") page: Int,
+                          @RequestParam(required = false, defaultValue = "30") limit: Int,
+                          @RequestParam(required = false) fields: Array<out String>): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", messageService.countByUsername(username).toString())
             set("X-Pagination-Page", page.toString())
             set("X-Pagination-Limit", limit.toString())
         }
-        return ResponseEntity.ok().headers(headers).body(messageService.findAllByUsername(username, page, limit))
+        val messages = messageService.findAllByUsername(username, page, limit)
+        return ResponseEntity.ok().headers(headers).body(JsonUtil.objectToJsonString(fields, "message", messages))
     }
 
-    @GetMapping(params = arrayOf("channelId"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findAllByChannel(@RequestParam channelId: Long, page: Int, limit: Int): ResponseEntity<List<Message>> {
+    @GetMapping(params = arrayOf("channelId", "page", "limit", "fields"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun findAllByChannel(@RequestParam channelId: Long,
+                         @RequestParam(required = false, defaultValue = "1") page: Int,
+                         @RequestParam(required = false, defaultValue = "30") limit: Int,
+                         @RequestParam(required = false) fields: Array<out String>): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", messageService.countByChannelId(channelId).toString())
             set("X-Pagination-Page", page.toString())
             set("X-Pagination-Limit", limit.toString())
         }
-        return ResponseEntity.ok().headers(headers).body(messageService.findAllByChannelId(channelId, page, limit))
+        val messages = messageService.findAllByChannelId(channelId, page, limit)
+        return ResponseEntity.ok().headers(headers).body(JsonUtil.objectToJsonString(fields, "message", messages))
     }
 }
