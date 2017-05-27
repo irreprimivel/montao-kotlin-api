@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider
 
 object JsonUtil {
-    fun objectToJsonString(expectedFields: Array<out String>, jsonFilterName: String, pojo: Any): String {
-        val except = SimpleBeanPropertyFilter.filterOutAllExcept(*expectedFields)
+    fun objectToJsonString(expectedFields: Array<out String>?, jsonFilterName: String, pojo: Any): String {
+        val except = if (expectedFields != null) SimpleBeanPropertyFilter.filterOutAllExcept(*expectedFields) else SimpleBeanPropertyFilter.serializeAll()
         val filter = SimpleFilterProvider().addFilter(jsonFilterName, except)
         val mapper = ObjectMapper()
-        val json = mapper.writer(filter).writeValueAsString(pojo)
-        return json
+        return mapper.writer(filter).writeValueAsString(pojo)
     }
 }
