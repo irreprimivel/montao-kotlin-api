@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull
 @JsonFilter("user")
 data class User(@Id
                 @GeneratedValue(strategy = GenerationType.AUTO)
-                val id: Long,
+                val id: Long?,
 
                 @NotNull
                 @Column(name = "uuid", nullable = false, unique = true)
@@ -37,16 +37,13 @@ data class User(@Id
 
                 @NotNull
                 @Column(name = "is_confirmed", nullable = false)
-                @JsonIgnore
                 val isConfirmed: Boolean,
 
                 @NotNull
                 @Column(name = "is_locked", nullable = false)
-                @JsonIgnore
                 val isLocked: Boolean,
 
                 @NotNull
                 @Column(name = "registration_date", nullable = false)
-                @JsonIgnore
                 val createdAt: LocalDate
 )

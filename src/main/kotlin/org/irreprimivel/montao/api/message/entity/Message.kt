@@ -11,26 +11,26 @@ import javax.validation.constraints.NotNull
 @Entity
 @Table(name = "messages")
 @JsonFilter("message")
-data class Message(
-        @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        val id: Long,
+data class Message(@Id
+                   @GeneratedValue(strategy = GenerationType.AUTO)
+                   val id: Long?,
 
-        @NotNull
-        @Column(name = "uuid", nullable = false, unique = true)
-        val uuid: String,
+                   @NotNull
+                   @Column(name = "uuid", nullable = false, unique = true)
+                   val uuid: String,
 
-        @ManyToOne
-        @JoinColumn(name = "user_id", nullable = false)
-        val user: User,
+                   @ManyToOne
+                   @JoinColumn(name = "user_id", nullable = false)
+                   val user: User,
 
-        @JsonFormat(pattern = "yyy-MM-dd HH:mm:ss")
-        @Column(name = "received_time", nullable = false)
-        val receivedTime: LocalDateTime,
+                   @JsonFormat(pattern = "yyy-MM-dd HH:mm:ss")
+                   @Column(name = "received_time", nullable = false)
+                   val receivedTime: LocalDateTime,
 
-        @Column(name = "text", nullable = false)
-        val text: String,
+                   @Column(name = "text", nullable = false)
+                   val text: String,
 
-        @ManyToOne
-        @JoinColumn(name = "channel_id")
-        val channel: Channel)
+                   @ManyToOne
+                   @JoinColumn(name = "channel_id")
+                   val channel: Channel
+)
