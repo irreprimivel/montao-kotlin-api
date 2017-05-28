@@ -4,11 +4,11 @@ import org.irreprimivel.montao.api.user.User
 import java.math.BigInteger
 
 interface UserDAO {
-    fun findAll(page: Int, limit: Int): List<User>
-    fun findByUsername(username: String): User
-    fun add(user: User)
+    fun add(user: User): User
     fun delete(user: User)
     fun update(user: User): User
-    fun totalCount(): Long
+    fun findAll(page: Int, limit: Int): List<User>
+    fun findByUsername(username: String): User
     fun findByEmail(email: String): User
+    fun totalCount(): Long
 }

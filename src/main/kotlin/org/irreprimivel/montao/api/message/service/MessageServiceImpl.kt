@@ -6,6 +6,12 @@ import org.springframework.stereotype.Service
 
 @Service
 class MessageServiceImpl(val messageDAO: MessageDAO) : MessageService {
+    override fun add(message: Message): Message = messageDAO.add(message)
+
+    override fun delete(message: Message) = messageDAO.delete(message)
+
+    override fun update(message: Message): Message = messageDAO.update(message)
+
     override fun findAll(page: Int, limit: Int): List<Message> = messageDAO.findAll(page, limit)
 
     override fun findAllByChannelId(channelId: Long, page: Int, limit: Int): List<Message> = messageDAO
@@ -15,12 +21,6 @@ class MessageServiceImpl(val messageDAO: MessageDAO) : MessageService {
             .findAllByUsername(username, page, limit)
 
     override fun findByUuid(uuid: String): Message = messageDAO.findByUuid(uuid)
-
-    override fun add(message: Message) = messageDAO.add(message)
-
-    override fun delete(message: Message) = messageDAO.delete(message)
-
-    override fun update(message: Message): Message = messageDAO.update(message)
 
     override fun totalCount(): Long = messageDAO.totalCount()
 

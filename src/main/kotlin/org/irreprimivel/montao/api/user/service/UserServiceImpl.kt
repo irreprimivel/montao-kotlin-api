@@ -7,7 +7,7 @@ import java.math.BigInteger
 
 @Service
 class UserServiceImpl(val userDAO: UserDAO) : UserService {
-    override fun add(user: User) = userDAO.add(user)
+    override fun add(user: User): User = userDAO.add(user)
 
     override fun findAll(page: Int, limit: Int): List<User> = userDAO.findAll(page, limit)
 

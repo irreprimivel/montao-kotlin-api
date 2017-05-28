@@ -7,7 +7,7 @@ interface MessageDAO {
     fun findAllByChannelId(channelId: Long, page: Int, limit: Int): List<Message>
     fun findAllByUsername(username: String, page: Int, limit: Int): List<Message>
     fun findByUuid(uuid: String): Message
-    fun add(message: Message)
+    fun add(message: Message): Message
     fun delete(message: Message)
     fun update(message: Message): Message
     fun totalCount(): Long
