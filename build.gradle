@@ -2,7 +2,7 @@ group 'org.irreprimivel'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.1.1'
+    ext.kotlin_version = '1.1.2-2'
     ext.spring_version = '4.3.7.RELEASE'
     ext.hibernate = '5.2.1.Final'
 
