@@ -24,9 +24,9 @@ import org.springframework.web.util.UriComponentsBuilder
 class MessageRestController(val messageService: MessageService) {
     @PostMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun add(@RequestBody message: Message, uriComponentsBuilder: UriComponentsBuilder): ResponseEntity<Message> {
-        messageService.add(message)
-        val location = uriComponentsBuilder.path("/messages/{uuid}").buildAndExpand(message.uuid).toUri()
-        return ResponseEntity.created(location).build()
+        val createdMessage = messageService.add(message)
+        val location = uriComponentsBuilder.path("/messages/{uuid}").buildAndExpand(createdMessage.uuid).toUri()
+        return ResponseEntity.created(location).body(createdMessage)
     }
 
     @PutMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
@@ -39,10 +39,10 @@ class MessageRestController(val messageService: MessageService) {
         return ResponseEntity.ok(message)
     }
 
-    @GetMapping(params = arrayOf("page", "limit", "fields"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findAll(@RequestParam(required = false, defaultValue = "1") page: Int,
-                @RequestParam(required = false, defaultValue = "30") limit: Int,
-                @RequestParam(required = false) fields: Array<out String>): ResponseEntity<String> {
+    @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun findAll(@RequestParam(defaultValue = "1") page: Int,
+                @RequestParam(defaultValue = "30") limit: Int,
+                @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", messageService.totalCount().toString())
@@ -53,19 +53,19 @@ class MessageRestController(val messageService: MessageService) {
         return ResponseEntity.ok().headers(headers).body(JsonUtil.objectToJsonString(fields, "message", messages))
     }
 
-    @GetMapping(value = "/{uuid}", params = arrayOf("fields"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    @GetMapping(value = "/{uuid}", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun findByUuid(@PathVariable uuid: String,
-                   @RequestParam(required = false) fields: Array<out String>): ResponseEntity<String> {
+                   @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
 
         val message = messageService.findByUuid(uuid)
         return ResponseEntity.ok(JsonUtil.objectToJsonString(fields, "message", message))
-                   }
+    }
 
-    @GetMapping(params = arrayOf("username", "page", "limit", "fields"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun findAllByUsername(@RequestParam username: String,
-                          @RequestParam(required = false, defaultValue = "1") page: Int,
-                          @RequestParam(required = false, defaultValue = "30") limit: Int,
-                          @RequestParam(required = false) fields: Array<out String>): ResponseEntity<String> {
+                          @RequestParam(defaultValue = "1") page: Int,
+                          @RequestParam(defaultValue = "30") limit: Int,
+                          @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", messageService.countByUsername(username).toString())
@@ -76,11 +76,11 @@ class MessageRestController(val messageService: MessageService) {
         return ResponseEntity.ok().headers(headers).body(JsonUtil.objectToJsonString(fields, "message", messages))
     }
 
-    @GetMapping(params = arrayOf("channelId", "page", "limit", "fields"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun findAllByChannel(@RequestParam channelId: Long,
-                         @RequestParam(required = false, defaultValue = "1") page: Int,
-                         @RequestParam(required = false, defaultValue = "30") limit: Int,
-                         @RequestParam(required = false) fields: Array<out String>): ResponseEntity<String> {
+                         @RequestParam(defaultValue = "1") page: Int,
+                         @RequestParam(defaultValue = "30") limit: Int,
+                         @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", messageService.countByChannelId(channelId).toString())

@@ -1,17 +1,15 @@
 package org.irreprimivel.montao.api.community.controller
 
-import org.irreprimivel.montao.api.channel.entity.Channel
 import org.irreprimivel.montao.api.community.entity.Community
 import org.irreprimivel.montao.api.community.service.CommunityService
-import org.irreprimivel.montao.api.subscription.SubscriptionService
-import org.irreprimivel.montao.api.user.User
+import org.irreprimivel.montao.api.subscription.service.SubscriptionService
+import org.irreprimivel.montao.api.util.JsonUtil
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.bind.annotation.RequestMethod.HEAD
 import org.springframework.web.util.UriComponentsBuilder
-import java.util.NoSuchElementException
 
 /**
  * Роутинг:
@@ -30,9 +28,9 @@ import java.util.NoSuchElementException
 class CommunityRestController(val communityService: CommunityService, val subscriptionService: SubscriptionService) {
     @PostMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun add(@RequestBody community: Community, uriComponentsBuilder: UriComponentsBuilder): ResponseEntity<Community> {
-        communityService.add(community)
-        val location = uriComponentsBuilder.path("/communities/{title}").buildAndExpand(community.title).toUri()
-        return ResponseEntity.created(location).build()
+        val createdCommunity = communityService.add(community)
+        val location = uriComponentsBuilder.path("/communities/{title}").buildAndExpand(createdCommunity.title).toUri()
+        return ResponseEntity.created(location).body(createdCommunity)
     }
 
     @PutMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
@@ -46,27 +44,42 @@ class CommunityRestController(val communityService: CommunityService, val subscr
     }
 
     @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findAll(@RequestParam page: Int, @RequestParam limit: Int): ResponseEntity<List<Community>> {
+    fun findAll(@RequestParam(defaultValue = "1") page: Int,
+                @RequestParam(defaultValue = "30") limit: Int,
+                @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", communityService.totalCount().toString())
             set("X-Pagination-Page", page.toString())
             set("X-Pagination-Limit", limit.toString())
         }
-        return ResponseEntity.ok().headers(headers).body(communityService.findAll(page, limit))
+        val communities = communityService.findAll(page, limit)
+        return ResponseEntity.ok().headers(headers).body(JsonUtil.objectToJsonString(fields, "community", communities))
     }
 
     @GetMapping(value = "/{title}", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findByTitle(@PathVariable title: String): ResponseEntity<Community> = ResponseEntity
-            .ok(communityService.findByTitle(title))
+    fun findByTitle(@PathVariable title: String,
+                    @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
+        val community = communityService.findByTitle(title)
+        return ResponseEntity.ok(JsonUtil.objectToJsonString(fields, "community", community))
+    }
 
     @GetMapping(value = "/{title}/users", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun findUsersByCommunity(@PathVariable title: String,
-                             @RequestParam page: Int,
-                             @RequestParam limit: Int): ResponseEntity<List<User>> = ResponseEntity
-            .ok(subscriptionService.findByCommunity(communityService.findByTitle(title), page, limit))
+                             @RequestParam(defaultValue = "1") page: Int,
+                             @RequestParam(defaultValue = "30") limit: Int,
+                             @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
+        val headers = HttpHeaders()
+        with(headers) {
+            //            set("X-Pagination-Count", communityService.totalCount().toString())
+            set("X-Pagination-Page", page.toString())
+            set("X-Pagination-Limit", limit.toString())
+        }
+        val users = subscriptionService.findByCommunity(communityService.findByTitle(title), page, limit)
+        return ResponseEntity.ok().headers(headers).body(JsonUtil.objectToJsonString(fields, "user", users))
+    }
 
-    @GetMapping(value = "/{title}/channels", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    /*@GetMapping(value = "/{title}/channels", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun findChannelsByCommunity(@PathVariable title: String): ResponseEntity<List<Channel>> = ResponseEntity
             .ok(communityService.findByTitle(title).channels)
 
@@ -77,7 +90,7 @@ class CommunityRestController(val communityService: CommunityService, val subscr
                         .channels!!.stream()
                         .filter { it.equals(channel) }
                         .findFirst()
-                        .orElseThrow { NoSuchElementException("Channel not found") })
+                        .orElseThrow { NoSuchElementException("Channel not found") })*/
 
     @RequestMapping(params = arrayOf("title"), method = arrayOf(HEAD))
     fun checkTitle(@RequestParam title: String): ResponseEntity<*> = ResponseEntity
