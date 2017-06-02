@@ -4,6 +4,7 @@ version '1.0-SNAPSHOT'
 buildscript {
     ext.kotlin_version = '1.1.2-2'
     ext.spring_version = '4.3.7.RELEASE'
+    ext.spring_security_version = '4.2.2.RELEASE'
     ext.hibernate = '5.2.1.Final'
 
     repositories {
@@ -32,11 +33,17 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile "org.springframework:spring-webmvc:$spring_version"
     compile "org.springframework:spring-orm:$spring_version"
+    compile "org.springframework.security:spring-security-web:$spring_security_version"
+    compile "org.springframework.security:spring-security-config:$spring_security_version"
     compile "org.hibernate:hibernate-entitymanager:$hibernate"
     compile "org.hibernate:hibernate-validator:$hibernate"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.1"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.7"
     compile "org.postgresql:postgresql:9.4-1201-jdbc41"
     compile "org.modelmapper:modelmapper:0.7.8"
+    compile "io.jsonwebtoken:jjwt:0.6.0"
+    compile "javax.servlet:javax.servlet-api:3.1.0"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
