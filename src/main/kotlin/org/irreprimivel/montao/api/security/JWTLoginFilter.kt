@@ -1,6 +1,6 @@
 package org.irreprimivel.montao.api.security
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.irreprimivel.montao.api.model.AccountCredentials
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -19,7 +19,7 @@ class JWTLoginFilter(url: String, authManager: AuthenticationManager) : Abstract
 
     override fun attemptAuthentication(request: HttpServletRequest?, response: HttpServletResponse?): Authentication {
         val inputStream = request?.inputStream
-        val credentials = ObjectMapper().readValue(inputStream, AccountCredentials::class.java)
+        val credentials = jacksonObjectMapper().readValue(inputStream, AccountCredentials::class.java)
         return authenticationManager.authenticate(UsernamePasswordAuthenticationToken(credentials.username,
                                                                                       credentials.password,
                                                                                       emptyList()))
