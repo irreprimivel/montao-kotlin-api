@@ -14,15 +14,15 @@ import java.security.Principal
 class SubscriptionRestController(val subscriptionService: SubscriptionService,
                                  val communityService: CommunityService,
                                  val userService: UserService) {
-    @PostMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun join(@RequestParam communityId: Long, principal: Principal): ResponseEntity<Subscription> {
+    @PostMapping(params = arrayOf("cid"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun join(@RequestParam(name = "cid") communityId: Long, principal: Principal): ResponseEntity<Subscription> {
         val community = communityService.findById(communityId)
         val user = userService.findByUsername(principal.name)
         return ResponseEntity.ok(subscriptionService.add(Subscription(null, community, user)))
     }
 
-    @DeleteMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun leave(@RequestParam communityId: Long, principal: Principal): ResponseEntity<Subscription> {
+    @DeleteMapping(params = arrayOf("cid"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun leave(@RequestParam(name = "cid") communityId: Long, principal: Principal): ResponseEntity<Subscription> {
         val community = communityService.findById(communityId)
         val user = userService.findByUsername(principal.name)
         val subscription = subscriptionService.find(community, user)
