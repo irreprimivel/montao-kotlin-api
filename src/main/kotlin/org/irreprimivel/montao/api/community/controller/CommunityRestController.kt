@@ -44,9 +44,9 @@ class CommunityRestController(val communityService: CommunityService, val subscr
     }
 
     @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findAll(@RequestParam(defaultValue = "1") page: Int,
-                @RequestParam(defaultValue = "30") limit: Int,
-                @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
+    fun findAll(@RequestParam(name = "p", defaultValue = "1") page: Int,
+                @RequestParam(name = "l", defaultValue = "30") limit: Int,
+                @RequestParam(name = "f", required = false) fields: Array<out String>?): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", communityService.totalCount().toString())
@@ -59,16 +59,17 @@ class CommunityRestController(val communityService: CommunityService, val subscr
 
     @GetMapping(value = "/{title}", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun findByTitle(@PathVariable title: String,
-                    @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
+                    @RequestParam(name = "f", required = false) fields: Array<out String>?): ResponseEntity<String> {
         val community = communityService.findByTitle(title)
         return ResponseEntity.ok(JsonUtil.objectToJsonString(fields, "community", community))
     }
 
     @GetMapping(value = "/{title}/users", produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun findUsersByCommunity(@PathVariable title: String,
-                             @RequestParam(defaultValue = "1") page: Int,
-                             @RequestParam(defaultValue = "30") limit: Int,
-                             @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
+                             @RequestParam(name = "p", defaultValue = "1") page: Int,
+                             @RequestParam(name = "l", defaultValue = "30") limit: Int,
+                             @RequestParam(name = "f",
+                                           required = false) fields: Array<out String>?): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             //            set("X-Pagination-Count", communityService.totalCount().toString())
@@ -92,7 +93,7 @@ class CommunityRestController(val communityService: CommunityService, val subscr
                         .findFirst()
                         .orElseThrow { NoSuchElementException("Channel not found") })*/
 
-    @RequestMapping(params = arrayOf("title"), method = arrayOf(HEAD))
-    fun checkTitle(@RequestParam title: String): ResponseEntity<*> = ResponseEntity
+    @RequestMapping(params = arrayOf("t"), method = arrayOf(HEAD))
+    fun checkTitle(@RequestParam(name = "t") title: String): ResponseEntity<*> = ResponseEntity
             .ok(communityService.findByTitle(title))
 }

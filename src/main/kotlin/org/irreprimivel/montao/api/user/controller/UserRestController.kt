@@ -111,21 +111,23 @@ class UserRestController(val userService: UserService, val subscriptionDAO: Subs
 
     /**
      * Проверяет существование такого юзернэйма.
+     * .../api/users?u=nickname5000
      *
      * @param username    Имя пользователя.
      * @return Статус 200 - если есть, 404 - если нет.
      */
-    @RequestMapping(params = arrayOf("username"), method = arrayOf(HEAD))
+    @RequestMapping(params = arrayOf("u"), method = arrayOf(HEAD))
     fun checkUsername(@RequestParam(name = "u") username: String): ResponseEntity<*> = ResponseEntity
             .ok(userService.findByUsername(username))
 
     /**
      * Проверяет существование такой почты.
+     * .../api/users?e=hello123@mail.com
      *
      * @param email   Почта.
      * @return Статус 200 - если есть, 404 - если нет.
      */
-    @RequestMapping(params = arrayOf("email"), method = arrayOf(HEAD))
+    @RequestMapping(params = arrayOf("e"), method = arrayOf(HEAD))
     fun checkEmail(@RequestParam(name = "e") email: String): ResponseEntity<*> = ResponseEntity
             .ok(userService.findByEmail(email))
 }
