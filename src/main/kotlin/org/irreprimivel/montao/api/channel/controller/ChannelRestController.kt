@@ -25,10 +25,16 @@ import org.springframework.web.util.UriComponentsBuilder
 class ChannelRestController(val channelService: ChannelService) {
     @PostMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun add(@RequestBody channel: Channel, uriComponentsBuilder: UriComponentsBuilder): ResponseEntity<Channel> {
+        //        val channel: Channel = convertToEntity(channelDto)
         val createdChannel = channelService.add(channel)
         val location = uriComponentsBuilder.path("/channels/{title}").buildAndExpand(createdChannel.title).toUri()
         return ResponseEntity.created(location).body(createdChannel)
     }
+
+    //    private fun convertToEntity(channelDto: ChannelDto): Channel {
+    //        val channel = ModelMapper().map(channelDto, Channel::class.java)
+    //
+    //    }
 
     @PutMapping(consumes = arrayOf(APPLICATION_JSON_UTF8_VALUE), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
     fun update(@RequestBody channel: Channel): ResponseEntity<Channel> = ResponseEntity.ok(channelService.update(channel))
@@ -40,9 +46,9 @@ class ChannelRestController(val channelService: ChannelService) {
     }
 
     @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findAll(@RequestParam(defaultValue = "1") page: Int,
-                @RequestParam(defaultValue = "30") limit: Int,
-                @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
+    fun findAll(@RequestParam(name = "p", defaultValue = "1") page: Int,
+                @RequestParam(name = "l", defaultValue = "30") limit: Int,
+                @RequestParam(name = "f", required = false) fields: Array<out String>?): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", channelService.totalCount().toString())
@@ -56,11 +62,12 @@ class ChannelRestController(val channelService: ChannelService) {
     /**
      * Возвращает все каналы в сообществе.
      */
-    @GetMapping(produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
-    fun findByCommunity(@RequestParam community: String,
-                        @RequestParam(defaultValue = "1") page: Int,
-                        @RequestParam(defaultValue = "30") limit: Int,
-                        @RequestParam(required = false) fields: Array<out String>?): ResponseEntity<String> {
+    @GetMapping(params = arrayOf("c"), produces = arrayOf(APPLICATION_JSON_UTF8_VALUE))
+    fun findByCommunity(@RequestParam(name = "c") community: String,
+                        @RequestParam(name = "p", defaultValue = "1") page: Int,
+                        @RequestParam(name = "l", defaultValue = "30") limit: Int,
+                        @RequestParam(name = "f",
+                                      required = false) fields: Array<out String>?): ResponseEntity<String> {
         val headers = HttpHeaders()
         with(headers) {
             set("X-Pagination-Count", channelService.countByCommunity(community).toString())

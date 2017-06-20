@@ -8,7 +8,6 @@ import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-
 object TokenAuthenticationService {
     const val EXPIRATION_TIME: Long = 864_000_000
     const val SECRET: String = "ThisIsASecret"

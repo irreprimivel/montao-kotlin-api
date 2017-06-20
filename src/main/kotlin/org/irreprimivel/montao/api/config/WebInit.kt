@@ -5,7 +5,8 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
 class WebInit : AbstractAnnotationConfigDispatcherServletInitializer() {
     override fun getRootConfigClasses(): Array<Class<*>> = arrayOf(
             ApplicationContext::class.java,
-            JpaConfig::class.java)
+            JpaConfig::class.java,
+            SecurityConfig::class.java)
 
     override fun getServletMappings(): Array<String> = arrayOf("/")
 
